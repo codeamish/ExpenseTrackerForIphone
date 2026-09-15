@@ -1,0 +1,48 @@
+src/
+│
+├── server.js
+│
+├── routes/
+│   └── transactionRoutes.js
+│
+├── controllers/
+│   └── transactionController.js
+│
+├── services/
+│   ├── transactionService.js
+│   ├── categorizationService.js
+│   └── duplicateService.js
+│
+├── parsers/
+│   ├── parserRegistry.js
+│   │
+│   ├── common/
+│   │   ├── normalizeMessage.js
+│   │   ├── amountExtractor.js
+│   │   ├── dateExtractor.js
+│   │   ├── referenceExtractor.js
+│   │   └── accountExtractor.js
+│   │
+│   ├── amex/
+│   │   └── amexParser.js
+│   │
+│   ├── sbi/
+│   │   ├── sbiCreditCardParser.js
+│   │   └── sbiDebitParser.js
+│   │
+│   └── hdfc/
+│       ├── hdfcCreditCardParser.js
+│       └── hdfcDebitParser.js
+│
+├── classifiers/
+│   ├── providerClassifier.js
+│   └── messageClassifier.js
+│
+├── validators/
+│   └── transactionValidator.js
+│
+├── models/
+│   └── transactionModel.js
+│
+└── db/
+    └── database.js
