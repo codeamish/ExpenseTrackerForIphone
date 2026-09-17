@@ -1,0 +1,110 @@
+entity: Transaction
+description: >
+  A financial transaction extracted from a raw financial message.
+
+fields:
+  id:
+    type: integer
+    required: true
+    generated: true
+    description: Unique transaction identifier.
+
+  raw_message:
+    type: string
+    required: true
+    description: Original message containing the transaction information.
+
+  provider:
+    type: string
+    required: true
+    max_length: 50
+    description: Bank, card issuer, payment provider, or other message source.
+
+  instrument_type:
+    type: string
+    required: true
+    max_length: 30
+    description: Financial instrument involved in the transaction.
+
+  account_last4:
+    type: string
+    required: false
+    length: 4
+    description: Last four digits of the account or card.
+
+  transaction_type:
+    type: string
+    required: true
+    max_length: 40
+    description: Transaction direction or type.
+
+  channel:
+    type: string
+    required: false
+    max_length: 40
+    description: Channel through which the transaction occurred.
+
+  amount:
+    type: decimal
+    required: true
+    precision: 12
+    scale: 2
+    description: Monetary value of the transaction.
+
+  currency:
+    type: string
+    required: true
+    length: 3
+    default: INR
+    description: Currency code.
+
+  merchant:
+    type: string
+    required: false
+    max_length: 255
+    description: Merchant or transaction counterparty.
+
+  transaction_date:
+    type: datetime
+    required: false
+    timezone: true
+    description: Date and time of the transaction.
+
+  reference_id:
+    type: string
+    required: false
+    max_length: 255
+    description: External/provider transaction reference.
+
+  reference_type:
+    type: string
+    required: false
+    max_length: 50
+    description: Type of external reference.
+
+  category:
+    type: string
+    required: false
+    max_length: 100
+    description: Transaction classification/category.
+
+  parser_confidence:
+    type: decimal
+    required: false
+    precision: 5
+    scale: 4
+    range: 0.0-1.0
+    description: Parser confidence in the extracted transaction data.
+
+  created_at:
+    type: datetime
+    required: true
+    timezone: true
+    default: current_timestamp
+    description: Record creation timestamp.
+
+  transaction_fingerprint:
+    type: string
+    required: false
+    max_length: 128
+    description: Stable fingerprint for detecting duplicate transactions.
