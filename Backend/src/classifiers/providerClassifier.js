@@ -17,14 +17,13 @@ export function detectProvider(message) {
     }
 
     if (text.includes("hdfc bank a/c")) {
-        return "HDFC_DEBIT";
+        return "HDFC_DEBIT_CARD";
     }
 
     if (
-        text.includes("sbi") ||
-        text.includes("a/c")
+        /\bsbi debit card\b/.test(text)
     ) {
-        return "SBI_DEBIT";
+        return "SBI_DEBIT_CARD";
     }
 
     return "UNKNOWN";

@@ -1,20 +1,21 @@
 import crypto from "node:crypto";
 
 export function generateTransactionFingerprint(transaction) {
-    const fingerprintData = [
+    // ISO dates are independent of server timezone; JSON preserves field boundaries.
+    const fingerprintData = JSON.stringify([
         transaction.provider,
         transaction.instrumentType,
         transaction.accountLast4,
         transaction.transactionType,
         transaction.channel,
-        transaction.amount,
+        Number(transaction.amount).toFixed(2),
         transaction.currency,
         transaction.merchant,
-        transaction.transactionDate,
+        transaction.transactionDate ? new Date(transaction.transactionDate).toISOString() : null,
         transaction.referenceId
     ]
         .map(value => value ?? "")
-        .join("|");
+    );
 
     return crypto
         .createHash("sha256")

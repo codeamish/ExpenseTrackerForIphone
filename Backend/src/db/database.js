@@ -2,6 +2,7 @@ import {Pool} from "pg";
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 const pool = new Pool({
+    connectionTimeoutMillis: 5000,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     database: process.env.DB_NAME,
