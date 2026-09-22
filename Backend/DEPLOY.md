@@ -41,7 +41,7 @@ Run `npm run export:web` in `Frontend/expense_tracker_for_iphone`, then upload t
 Create the account in the newly deployed app. Signup displays the import-only token once. Put that token into the iPhone Shortcut's `Authorization` header as `Bearer YOUR_IMPORT_TOKEN` and send messages to:
 
 ```text
-https://expense-tracker-iphone-api.onrender.com/api/transactions
+https://expense-tracker-iphone-api.onrender.com/api/transactions/import
 ```
 
 ## Free-tier behavior
