@@ -12,7 +12,7 @@ export function createImportTransaction(db) {
             }
             const transaction = processTransaction(message);
             transaction.category = categorizeMerchant(transaction.merchant);
-            const saved = await saveTransaction(db, transaction);
+            const saved = await saveTransaction(db, req.user.id, transaction);
             return res.status(saved.duplicate ? 200 : 201).json({ success: true, ...saved });
         } catch (error) {
             if (error.code === 'UNSUPPORTED_MESSAGE') {
@@ -26,14 +26,18 @@ export function createImportTransaction(db) {
 
 const importTransaction = createImportTransaction(pool);
 
-async function getTransactions(req, res) {
+export function createGetTransactions(db) {
+    return async function getTransactions(req, res, next) {
     try {
-        const result = await pool.query('SELECT * FROM transactions ORDER BY created_at DESC');
-        res.json(result.rows);
+        const result = await db.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
+        res.set('Cache-Control', 'no-store');
+        return res.json(result.rows);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch transactions' });
+        return next(error);
     }
+    };
 }
+
+const getTransactions = createGetTransactions(pool);
 
 export { importTransaction, getTransactions };

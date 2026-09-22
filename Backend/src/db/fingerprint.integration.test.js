@@ -42,15 +42,19 @@ test('PostgreSQL migration, concurrent imports, retries and rollback', { skip: p
         const transaction = processTransaction(message);
         clients.push(await pool.connect());
         await clients[1].query(`SET search_path TO ${schema}`);
-        const results = await Promise.all(clients.map(client => saveTransaction(client, transaction)));
+        await first.query('ALTER TABLE transactions ADD COLUMN user_id TEXT');
+        await first.query('DROP INDEX transactions_fingerprint_unique');
+        await first.query('CREATE UNIQUE INDEX transactions_user_fingerprint_unique ON transactions (user_id, transaction_fingerprint) WHERE user_id IS NOT NULL');
+        const results = await Promise.all(clients.map(client => saveTransaction(client, 'user-1', transaction)));
         assert.equal(results.filter(result => !result.duplicate).length, 1);
         assert.equal(results[0].transaction.id, results[1].transaction.id);
-        const retry = await saveTransaction(first, { ...transaction, category: 'Should not overwrite' });
+        const retry = await saveTransaction(first, 'user-1', { ...transaction, category: 'Should not overwrite' });
         assert.equal(retry.duplicate, true);
         assert.equal(retry.transaction.category, null);
         const different = processTransaction(message.replace('123456', '654321'));
-        assert.equal((await saveTransaction(first, different)).duplicate, false);
-        assert.equal((await first.query('SELECT count(*) FROM transactions')).rows[0].count, '3');
+        assert.equal((await saveTransaction(first, 'user-1', different)).duplicate, false);
+        assert.equal((await saveTransaction(first, 'user-2', transaction)).duplicate, false);
+        assert.equal((await first.query('SELECT count(*) FROM transactions')).rows[0].count, '4');
         await assert.rejects(first.query(`INSERT INTO transactions (raw_message,provider,instrument_type,transaction_type,amount)
             VALUES ('invalid','SBI','CREDIT_CARD','EXPENSE',60)`), { code: '23502' });
     } finally {

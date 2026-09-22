@@ -9,12 +9,13 @@ function response() {
 
 test('new import returns 201 and duplicate false', async () => {
     const db = { async query(sql, values) {
-        assert.match(sql, /ON CONFLICT \(transaction_fingerprint\) DO NOTHING/);
+        assert.match(sql, /ON CONFLICT \(user_id, transaction_fingerprint\)/);
         assert.match(values[14], /^[a-f0-9]{64}$/);
+        assert.equal(values[15], 'user-1');
         return { rows: [{ id: '7', raw_message: message }] };
     } };
     const res = response();
-    await createImportTransaction(db)({ body: { message } }, res);
+    await createImportTransaction(db)({ body: { message }, user: { id: 'user-1' } }, res);
     assert.equal(res.code, 201);
     assert.equal(res.body.duplicate, false);
     assert.equal(res.body.transaction.id, '7');
@@ -30,7 +31,7 @@ test('duplicate returns 200 with existing transaction without overwriting it', a
         return { rows: [original] };
     } };
     const res = response();
-    await createImportTransaction(db)({ body: { message } }, res);
+    await createImportTransaction(db)({ body: { message }, user: { id: 'user-1' } }, res);
     assert.equal(res.code, 200);
     assert.deepEqual(res.body, { success: true, duplicate: true, transaction: original });
     assert.equal(calls, 2);
@@ -40,7 +41,7 @@ test('invalid requests never reach the database', async () => {
     const db = { query() { assert.fail('Unexpected database call'); } };
     for (const [body, code] of [[{}, 400], [{ message: 123 }, 400], [{ message: 'OTP for SBI Credit Card' }, 422]]) {
         const res = response();
-        await createImportTransaction(db)({ body }, res);
+        await createImportTransaction(db)({ body, user: { id: 'user-1' } }, res);
         assert.equal(res.code, code);
     }
 });

@@ -54,7 +54,14 @@ export async function migrateFingerprints(client, { archiveDuplicates = false, a
             await client.query('UPDATE transactions SET transaction_fingerprint = $1 WHERE id = $2', values);
         }
         await client.query('ALTER TABLE transactions ALTER COLUMN transaction_fingerprint SET NOT NULL');
-        await client.query('CREATE UNIQUE INDEX IF NOT EXISTS transactions_fingerprint_unique ON transactions (transaction_fingerprint)');
+        const ownership = await client.query(`SELECT 1 FROM information_schema.columns
+            WHERE table_schema = current_schema() AND table_name = 'transactions' AND column_name = 'user_id'`);
+        if (ownership.rows.length) {
+            await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS transactions_user_fingerprint_unique
+                ON transactions (user_id, transaction_fingerprint) WHERE user_id IS NOT NULL`);
+        } else {
+            await client.query('CREATE UNIQUE INDEX IF NOT EXISTS transactions_fingerprint_unique ON transactions (transaction_fingerprint)');
+        }
         await client.query('COMMIT');
         return { backfilled: updates.length - archivedIds.size, archived: archivedIds.size };
     } catch (error) {

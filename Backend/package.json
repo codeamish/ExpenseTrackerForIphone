@@ -6,6 +6,9 @@
   "scripts": {
     "test": "node --test",
     "migrate:fingerprints": "node scripts/migrate-fingerprints.js",
+    "migrate:auth": "node scripts/migrate-auth.js",
+    "migrate:deploy": "node scripts/migrate-deploy.js",
+    "assign:transactions": "node scripts/assign-transactions.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
@@ -13,6 +16,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
